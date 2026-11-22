@@ -69,9 +69,10 @@ function achievements(){
 function toast(t){let el=$('#toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200);}
 function header(){
   $('#yearBadge').textContent=year;
-  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.dash-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab || (b.dataset.tab==='map' && tab==='progress' && location.hash==='#map')));
 }
 function render(){
+  if(tab!=='progress' && location.hash)history.replaceState(null,'',location.pathname+location.search);
   header();
   if(tab==='analytics')return analytics();
   if(tab==='backup')return backup();
@@ -95,12 +96,6 @@ function home(){
   })();
   const heatCells=heatWeeks.map(d=>`<button class="dash-heat-cell" style="background:${heatColor(d.v)}" title="${d.k}: ${money(d.v)} ₽" onclick="month=${Number(d.k.slice(5,7))-1};day=${Number(d.k.slice(8,10))};tab='home';render()"></button>`).join('');
   $('#view').innerHTML=`
-    <div class="dash-topnav">
-      <button class="dash-nav active" onclick="tab='home';month=-1;day=0;render()">Главная</button>
-      <button class="dash-nav" onclick="tab='analytics';render()">Статистика</button>
-      <button class="dash-nav" onclick="tab='progress';render()">Достижения</button>
-      <button class="dash-nav" onclick="tab='progress';render();setTimeout(()=>document.querySelector('.dash-achievements')?.scrollIntoView({behavior:'smooth'}),80)">Карта</button>
-    </div>
     <div class="dash-summary">
       <div class="dash-tile"><span class="dash-icon">▦</span><span class="muted">Сегодня</span><b>${todayDate}</b><strong>${money(num(today.cash))} ₽</strong></div>
       <div class="dash-tile"><span class="dash-icon">◢</span><span class="muted">Пробег за год</span><b>${money(km)} км</b><strong>${money(num(today.mileage))} км сегодня</strong></div>
@@ -267,7 +262,18 @@ $('#importFile').addEventListener('change',async e=>{
   }catch(err){toast('Не удалось прочитать копию: '+err.message);}
   e.target.value='';
 });
-document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
-  tab=b.dataset.tab;month=-1;day=0;render();
+document.querySelectorAll('.dash-nav').forEach(b=>b.addEventListener('click',()=>{
+  const target=b.dataset.tab;
+  month=-1;day=0;
+  if(target==='map'){
+    tab='progress';
+    history.replaceState(null,'','#map');
+    render();
+    setTimeout(()=>document.querySelector('.heat-scroll')?.scrollIntoView({behavior:'smooth',block:'start'}),100);
+  }else{
+    history.replaceState(null,'',location.pathname+location.search);
+    tab=target;
+    render();
+  }
 }));
 render();
