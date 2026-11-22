@@ -285,3 +285,29 @@ input,select{background:#0d1e30;color:#eff9ff;border-color:#2b4c67}
   .dash-topnav{gap:3px}
   .dash-nav{padding:8px 10px;font-size:11px}
 }
+
+
+/* Dedicated activity-map tab */
+.map-page-card{padding:18px 14px}
+.map-page-card .heat-scroll{overflow-x:auto;padding:10px 2px 12px}
+.map-page-card .heat-grid{gap:5px;min-width:max-content}
+.map-page-card .heat-week{grid-template-rows:repeat(7,16px);gap:5px}
+.map-page-card .heat-cell{width:16px;height:16px;min-width:16px;border-radius:4px}
+.map-page-card .heat-months{min-width:760px;margin:6px 0 8px;height:18px}
+.map-page-card .heat-months span{font-size:11px}
+.map-page-card .heat-legend{margin-top:16px}
+
+/* Clean top navigation: remove the dark rectangular outline/background */
+.dash-topnav{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  padding:5px 0 10px;
+}
+.dash-topnav:focus,.dash-topnav:focus-visible{outline:none}
+.dash-nav{border:0!important;outline:0;box-shadow:none}
+.dash-nav:focus-visible{outline:2px solid rgba(57,201,245,.65);outline-offset:2px}
+.dash-nav.active{box-shadow:inset 0 -2px #39c9f5!important}

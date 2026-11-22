@@ -69,14 +69,14 @@ function achievements(){
 function toast(t){let el=$('#toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200);}
 function header(){
   $('#yearBadge').textContent=year;
-  document.querySelectorAll('.dash-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab || (b.dataset.tab==='map' && tab==='progress' && location.hash==='#map')));
+  document.querySelectorAll('.dash-nav').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
 }
 function render(){
-  if(tab!=='progress' && location.hash)history.replaceState(null,'',location.pathname+location.search);
   header();
   if(tab==='analytics')return analytics();
   if(tab==='backup')return backup();
   if(tab==='progress')return progress();
+  if(tab==='map')return mapPage();
   if(month<0)return home();
   if(day===0)return calendar();
   daily();
@@ -106,17 +106,10 @@ function home(){
       <div class="progress"><div style="width:${info.progress}%"></div></div>
       <span class="muted">${info.next?`До уровня «${info.next.name}» осталось ${money(info.remaining)} ₽`:'Максимальный уровень достигнут!'}</span>
     </div>
-    <div class="dash-two">
-      <div class="card dash-panel dash-achievements">
-        <div class="row between"><b>Достижения</b><span class="muted">${done} из ${all.length}</span></div>
-        <div class="dash-badges">${all.slice(0,5).map((a,i)=>`<span class="dash-badge ${a.ok?'earned':''}" title="${a.name}">${a.icon}</span>`).join('')}</div>
-        <button class="dash-text-btn" onclick="tab='progress';render()">Все достижения →</button>
-      </div>
-      <div class="card dash-panel">
-        <div class="row between"><b>Карта активности</b><button class="dash-mini-btn" onclick="tab='progress';render()">Все →</button></div>
-        <div class="dash-heat">${heatCells}</div>
-        <span class="muted">Последние 90 дней</span>
-      </div>
+    <div class="card dash-panel dash-achievements">
+      <div class="row between"><b>Достижения</b><span class="muted">${done} из ${all.length}</span></div>
+      <div class="dash-badges">${all.slice(0,5).map((a,i)=>`<span class="dash-badge ${a.ok?'earned':''}" title="${a.name}">${a.icon}</span>`).join('')}</div>
+      <button class="dash-text-btn" onclick="tab='progress';render()">Все достижения →</button>
     </div>
     <div class="card dash-recent">
       <div class="row between"><b>Последние поездки</b><button class="dash-mini-btn" onclick="month=-1;day=0;tab='home';render()">Календарь →</button></div>
@@ -208,6 +201,18 @@ function heatmap(){
     <div class="heat-scroll"><div class="heat-grid">${cells}</div></div>
     <div class="row between heat-legend"><span class="muted">Нет кассы</span><div class="row" style="gap:4px">${['#26342c','#315b3d','#438b51','#5eaa63','#80cf79'].map(c=>`<span class="heat-cell legend-cell" style="background:${c}"></span>`).join('')}</div><span class="muted">Больше</span></div>`;
 }
+function mapPage(){
+  $('#view').innerHTML=`
+    <div class="row between"><h2>Карта активности</h2><div class="actions" style="flex:0 0 auto"><button class="secondary" onclick="year--;render()">‹</button><b style="padding:12px">${year}</b><button class="secondary" onclick="year++;render()">›</button></div></div>
+    <div class="card map-page-card">
+      <p class="muted">Каждый квадратик — день. Чем больше общая касса за день, тем ярче цвет. Нажми на день, чтобы открыть запись.</p>
+      ${heatmap()}
+    </div>
+    <div class="card">
+      <h3>Как читать карту</h3>
+      <div class="row between"><span class="muted">Нет кассы</span><div class="row" style="gap:5px">${['#26342c','#315b3d','#438b51','#5eaa63','#80cf79'].map(c=>`<span class="heat-cell legend-cell" style="background:${c}"></span>`).join('')}</div><span class="muted">Больше касса</span></div>
+    </div>`;
+}
 function progress(){
   const total=grossTotal(),info=levelInfo(total),done=achievements().filter(a=>a.ok).length,all=achievements();
   $('#view').innerHTML=`
@@ -225,8 +230,7 @@ function progress(){
     </div>
     <div class="row between"><h2>Достижения</h2><span class="pill">${done} / ${all.length}</span></div>
     <div class="grid achievements">${all.map(a=>`<div class="card achievement ${a.ok?'unlocked':'locked'}"><div class="achievement-icon">${a.icon}</div><b>${a.name}</b><p class="muted">${a.desc}</p><span class="achievement-status">${a.ok?'Получено ✓':'Пока закрыто'}</span></div>`).join('')}</div>
-    <div class="row between"><h2>Карта активности</h2><div class="actions" style="flex:0 0 auto"><button class="secondary" onclick="year--;render()">‹</button><b style="padding:12px">${year}</b><button class="secondary" onclick="year++;render()">›</button></div></div>
-    <div class="card"><p class="muted">Каждый квадратик — день. Чем больше касса за день, тем ярче цвет. Нажми на день, чтобы открыть запись.</p>${heatmap()}</div>`;
+    `;
 }
 function backup(){
   $('#view').innerHTML=`<h2>Резервная копия</h2>
@@ -265,15 +269,8 @@ $('#importFile').addEventListener('change',async e=>{
 document.querySelectorAll('.dash-nav').forEach(b=>b.addEventListener('click',()=>{
   const target=b.dataset.tab;
   month=-1;day=0;
-  if(target==='map'){
-    tab='progress';
-    history.replaceState(null,'','#map');
-    render();
-    setTimeout(()=>document.querySelector('.heat-scroll')?.scrollIntoView({behavior:'smooth',block:'start'}),100);
-  }else{
-    history.replaceState(null,'',location.pathname+location.search);
-    tab=target;
-    render();
-  }
+  history.replaceState(null,'',location.pathname+location.search);
+  tab=target;
+  render();
 }));
 render();
