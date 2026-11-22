@@ -200,3 +200,51 @@ input,select{background:#0d1e30;color:#eff9ff;border-color:#2b4c67}
     transition-duration:.01ms!important;
   }
 }
+
+
+/* Reference-inspired compact Taxi Diary dashboard */
+.dash-topnav{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;margin-top:-5px;scrollbar-width:none}
+.dash-topnav::-webkit-scrollbar{display:none}
+.dash-nav{flex:0 0 auto;background:transparent;color:#a8c0d2;padding:8px 13px;border-radius:18px;font-size:12px}
+.dash-nav.active{background:#123d5a;color:#8fe8ff;box-shadow:inset 0 -2px #39c9f5}
+.dash-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.dash-tile{min-width:0;min-height:112px;padding:12px 11px;border:1px solid #24435f;border-radius:15px;background:linear-gradient(145deg,#142b41,#0e2033);display:flex;flex-direction:column;gap:5px}
+.dash-tile .muted{font-size:11px}
+.dash-tile b{font-size:12px;line-height:1.3}
+.dash-tile strong{font-size:13px;color:#dff7ff;line-height:1.3}
+.dash-icon{font-size:20px;color:#39c9f5;font-weight:900;margin-bottom:2px}
+.dash-level-tile .dash-icon{color:#ffc247}
+.dash-progress{padding:13px 5px 10px}
+.dash-progress .row{font-size:12px}
+.dash-progress .progress{margin:8px 0 5px;height:9px;background:#203b53}
+.dash-two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.dash-panel{margin:0;padding:12px;min-width:0;min-height:112px}
+.dash-panel b{font-size:12px}
+.dash-badges{display:flex;gap:6px;margin:13px 0 8px}
+.dash-badge{width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:#1a2c3e;border:1px solid #39536b;filter:grayscale(1);opacity:.55;font-size:14px}
+.dash-badge.earned{filter:none;opacity:1;background:#123e5b;border-color:#2586b0;box-shadow:0 0 10px rgba(57,201,245,.14)}
+.dash-text-btn,.dash-mini-btn{padding:4px 0;background:transparent;color:#80dfff;font-size:11px;box-shadow:none}
+.dash-mini-btn{padding:3px 5px}
+.dash-heat{display:grid;grid-template-columns:repeat(13,minmax(5px,1fr));grid-auto-rows:9px;gap:3px;margin:14px 0 8px}
+.dash-heat-cell{min-width:0;width:100%;height:9px;padding:0;border-radius:3px;border:0;background:#20374a}
+.dash-recent{margin-top:10px;padding:13px}
+.dash-recent> .row b{font-size:13px}
+.dash-trip{display:grid;grid-template-columns:1.35fr .8fr .7fr;gap:5px;align-items:center;padding:10px 0;border-bottom:1px solid #24435f;font-size:11px;cursor:pointer}
+.dash-trip:last-child{border-bottom:0}
+.dash-trip span{color:#a9c2d4}
+.dash-trip b{text-align:center;color:#d9edfa}
+.dash-trip strong{text-align:right;color:#79ddff}
+.dash-month-heading{margin-top:12px}
+@media(max-width:380px){
+  .dash-summary{gap:6px}
+  .dash-tile{padding:10px 8px;min-height:108px}
+  .dash-tile strong{font-size:11px}
+  .dash-two{gap:6px}
+  .dash-panel{padding:10px}
+  .dash-trip{font-size:10px}
+}
+@media(min-width:600px){
+  .dash-summary{gap:12px}
+  .dash-tile{min-height:125px;padding:16px}
+  .dash-two{gap:12px}
+}

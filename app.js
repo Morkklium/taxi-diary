@@ -83,20 +83,52 @@ function render(){
 function home(){
   const totalYear=Array.from({length:12},(_,m)=>monthNet(year,m)).reduce((a,b)=>a+b,0);
   const km=Object.entries(state.records).filter(([k])=>k.startsWith(year+'-')).reduce((a,[k,r])=>a+num(r.mileage),0);
-  const info=levelInfo();
+  const info=levelInfo(),all=achievements(),done=all.filter(a=>a.ok).length;
+  const todayKey=toKey(new Date()),today=rec(todayKey);
+  const todayDate=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'short',year:'numeric'});
+  const recent=Object.entries(state.records).filter(([k,r])=>num(r.cash)>0||num(r.mileage)>0)
+    .sort(([a],[b])=>b.localeCompare(a)).slice(0,3);
+  const heatWeeks=(()=>{
+    const end=new Date(),start=new Date(end);start.setDate(end.getDate()-90);
+    const days=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){const k=toKey(d);days.push({k,v:num(rec(k).cash)});}
+    return days;
+  })();
+  const heatCells=heatWeeks.map(d=>`<button class="dash-heat-cell" style="background:${heatColor(d.v)}" title="${d.k}: ${money(d.v)} ₽" onclick="month=${Number(d.k.slice(5,7))-1};day=${Number(d.k.slice(8,10))};tab='home';render()"></button>`).join('');
   $('#view').innerHTML=`
-    <div class="grid">
-      <div class="card"><div class="muted">Чистыми за год</div><div class="money">${money(totalYear)} ₽</div></div>
-      <div class="card"><div class="muted">Пробег за год</div><div class="money">${money(km)} км</div></div>
+    <div class="dash-topnav">
+      <button class="dash-nav active" onclick="tab='home';month=-1;day=0;render()">Главная</button>
+      <button class="dash-nav" onclick="tab='analytics';render()">Статистика</button>
+      <button class="dash-nav" onclick="tab='progress';render()">Достижения</button>
+      <button class="dash-nav" onclick="tab='progress';render();setTimeout(()=>document.querySelector('.dash-achievements')?.scrollIntoView({behavior:'smooth'}),80)">Карта</button>
     </div>
-    <div class="card level-mini">
-      <div class="row between"><h3>Твой уровень</h3><span>${info.level.icon} <b>${info.level.name}</b></span></div>
-      <div class="money">${money(grossTotal())} ₽</div><div class="muted">Общая касса за всё время</div>
-      ${info.next?`<div class="progress"><div style="width:${info.progress}%"></div></div><div class="muted">До уровня «${info.next.name}» осталось ${money(info.remaining)} ₽</div>`:'<p class="muted">Максимальный уровень достигнут!</p>'}
-      <button class="secondary full" onclick="tab='progress';render()">Уровни и достижения →</button>
+    <div class="dash-summary">
+      <div class="dash-tile"><span class="dash-icon">▦</span><span class="muted">Сегодня</span><b>${todayDate}</b><strong>${money(num(today.cash))} ₽</strong></div>
+      <div class="dash-tile"><span class="dash-icon">◢</span><span class="muted">Пробег за год</span><b>${money(km)} км</b><strong>${money(num(today.mileage))} км сегодня</strong></div>
+      <div class="dash-tile dash-level-tile"><span class="dash-icon">★</span><span class="muted">Уровень водителя</span><b>${info.level.name}</b><strong>${money(grossTotal())} ₽ касса</strong></div>
     </div>
-    <div class="row between"><h2>Твои месяцы</h2><div class="actions" style="flex:0 0 auto"><button class="secondary" onclick="year--;render()">‹</button><b style="padding:12px">${year}</b><button class="secondary" onclick="year++;render()">›</button></div></div>
-    <div class="grid">${months.map((m,i)=>{let ks=monthKeys(year,i),done=ks.filter(k=>rec(k).completed).length;return `<div class="card month" onclick="month=${i};day=0;render()"><strong>${m}</strong><div class="money">${money(monthNet(year,i))} ₽</div><div class="muted">${done} дней отмечено</div><div class="muted" style="margin-top:9px">Открыть месяц →</div></div>`}).join('')}</div>
+    <div class="dash-progress">
+      <div class="row between"><b>Прогресс до следующего уровня</b><b>${Math.round(info.progress)}%</b></div>
+      <div class="progress"><div style="width:${info.progress}%"></div></div>
+      <span class="muted">${info.next?`До уровня «${info.next.name}» осталось ${money(info.remaining)} ₽`:'Максимальный уровень достигнут!'}</span>
+    </div>
+    <div class="dash-two">
+      <div class="card dash-panel dash-achievements">
+        <div class="row between"><b>Достижения</b><span class="muted">${done} из ${all.length}</span></div>
+        <div class="dash-badges">${all.slice(0,5).map((a,i)=>`<span class="dash-badge ${a.ok?'earned':''}" title="${a.name}">${a.icon}</span>`).join('')}</div>
+        <button class="dash-text-btn" onclick="tab='progress';render()">Все достижения →</button>
+      </div>
+      <div class="card dash-panel">
+        <div class="row between"><b>Карта активности</b><button class="dash-mini-btn" onclick="tab='progress';render()">Все →</button></div>
+        <div class="dash-heat">${heatCells}</div>
+        <span class="muted">Последние 90 дней</span>
+      </div>
+    </div>
+    <div class="card dash-recent">
+      <div class="row between"><b>Последние поездки</b><button class="dash-mini-btn" onclick="month=-1;day=0;tab='home';render()">Календарь →</button></div>
+      ${recent.length?recent.map(([k,r])=>`<div class="dash-trip" onclick="year=Number('${k.slice(0,4)}');month=${Number(k.slice(5,7))-1};day=${Number(k.slice(8,10))};render()"><span>▣ &nbsp;${new Date(k+'T12:00:00').toLocaleDateString('ru-RU')}</span><b>${money(num(r.mileage))} км</b><strong>${money(num(r.cash))} ₽</strong></div>`).join(''):'<p class="muted">Пока нет записанных поездок. Открой календарь и добавь первую запись.</p>'}
+    </div>
+    <div class="row between dash-month-heading"><h2>Твои месяцы</h2><div class="actions" style="flex:0 0 auto"><button class="secondary" onclick="year--;render()">‹</button><b style="padding:12px">${year}</b><button class="secondary" onclick="year++;render()">›</button></div></div>
+    <div class="grid">${months.map((m,i)=>{let ks=monthKeys(year,i),doneDays=ks.filter(k=>rec(k).completed).length;return `<div class="card month" onclick="month=${i};day=0;render()"><strong>${m}</strong><div class="money">${money(monthNet(year,i))} ₽</div><div class="muted">${doneDays} дней отмечено</div><div class="muted" style="margin-top:9px">Открыть месяц →</div></div>`}).join('')}</div>
     <p class="muted" style="text-align:center">Записи сохраняются автоматически на этом устройстве</p>`;
 }
 function calendar(){
