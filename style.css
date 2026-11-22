@@ -311,3 +311,28 @@ input,select{background:#0d1e30;color:#eff9ff;border-color:#2b4c67}
 .dash-nav{border:0!important;outline:0;box-shadow:none}
 .dash-nav:focus-visible{outline:2px solid rgba(57,201,245,.65);outline-offset:2px}
 .dash-nav.active{box-shadow:inset 0 -2px #39c9f5!important}
+
+
+/* Align month captions exactly with activity-map week columns.
+   Captions and squares now share one horizontal scroll area. */
+.map-page-card .heat-scroll{overflow-x:auto;overflow-y:hidden}
+.map-page-card .heat-months{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:21px;
+  width:max-content;
+  min-width:max-content;
+  height:20px;
+  gap:0;
+  margin:6px 0 8px;
+  align-items:end;
+}
+.map-page-card .heat-months span{
+  display:block;
+  white-space:nowrap;
+  font-size:10px;
+  line-height:14px;
+  letter-spacing:-.25px;
+  overflow:visible;
+}
+.map-page-card .heat-grid{width:max-content}

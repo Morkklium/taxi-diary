@@ -197,8 +197,10 @@ function heatmap(){
   }
   const monthLabels=weeks.map((w,i)=>w.some(d=>d.inYear&&d.day<=7)?`<span style="grid-column:${i+1}">${months[w.find(d=>d.inYear&&d.day<=7)?.month||0].slice(0,3)}</span>`:'').join('');
   const cells=weeks.map(w=>`<div class="heat-week">${w.map(d=>`<button class="heat-cell" style="background:${d.inYear?heatColor(d.value):'transparent'}" ${d.inYear?`title="${d.key}: ${money(d.value)} ₽" onclick="month=${d.month};day=${d.day};tab='home';render()"`:'disabled'} aria-label="${d.key}"></button>`).join('')}</div>`).join('');
-  return `<div class="heat-months" style="grid-template-columns:repeat(${weeks.length},minmax(0,1fr))">${monthLabels}</div>
-    <div class="heat-scroll"><div class="heat-grid">${cells}</div></div>
+  return `<div class="heat-scroll">
+      <div class="heat-months" style="grid-template-columns:repeat(${weeks.length},21px)">${monthLabels}</div>
+      <div class="heat-grid">${cells}</div>
+    </div>
     <div class="row between heat-legend"><span class="muted">Нет кассы</span><div class="row" style="gap:4px">${['#26342c','#315b3d','#438b51','#5eaa63','#80cf79'].map(c=>`<span class="heat-cell legend-cell" style="background:${c}"></span>`).join('')}</div><span class="muted">Больше</span></div>`;
 }
 function mapPage(){
